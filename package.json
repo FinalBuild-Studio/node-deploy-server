@@ -1,0 +1,28 @@
+{
+  "name": "node-deploy-server",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapsLock-Studio/node-deploy-server.git"
+  },
+  "author": "michael34435@capslock.tw",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CapsLock-Studio/node-deploy-server/issues"
+  },
+  "homepage": "https://github.com/CapsLock-Studio/node-deploy-server#readme",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "crypto": "0.0.3",
+    "download": "^5.0.2",
+    "express": "^4.14.0",
+    "fs-extra": "^1.0.0",
+    "github": "^6.0.4"
+  }
+}
