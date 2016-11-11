@@ -8,7 +8,7 @@ npm i
 
 ### How to use
 ```sh
-SECRET={DEFINE_YOUR_SECRET_STRING HERE} ./node-deploy-server
+SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 ```
 
 ### Acceptable json schema
