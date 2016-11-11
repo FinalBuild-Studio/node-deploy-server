@@ -21,12 +21,11 @@ const github = new GitHubApi({
   followRedirects: false,
   timeout: 5000
 })
-const signature = (json) => {
-  const payload = JSON.stringify(json).replace(/[\u007F-\uFFFF]/g, (chr) => {
+const signature = json => {
+  const payload = JSON.stringify(json).replace(/[\u007F-\uFFFF]/g, chr => {
     return '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).substr(-4)
   })
-  const hmac = crypto.createHmac('sha1', secret)
-  hmac.update(payload)
+  const hmac = crypto.createHmac('sha1', secret).update(payload)
   const hex = hmac.digest('hex')
   const sha1 = `sha1=${hex}`
 
