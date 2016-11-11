@@ -21,7 +21,8 @@ const github = new GitHubApi({
   followRedirects: false,
   timeout: 5000
 })
-const signature = json => {
+const signature = req => {
+  const json = req.body
   const payload = JSON.stringify(json).replace(/[\u007F-\uFFFF]/g, chr => {
     return '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).substr(-4)
   })
@@ -29,12 +30,12 @@ const signature = json => {
   const hex = hmac.digest('hex')
   const sha1 = `sha1=${hex}`
 
-  return sha1
+  return sha1 === req.headers['x-hub-signature']
 }
 
 app.use(require('body-parser').json())
 app.post('/', async (req, res) => {
-  if (signature(req.body) != req.headers['x-hub-signature']) {
+  if (!signature(req)) {
     return res.sendStatus(403)
   }
 
@@ -66,7 +67,11 @@ app.post('/', async (req, res) => {
       if (backlog.indexOf(tarTag) !== -1 && !tag) {
         return res.sendStatus(200)
       } else {
-        backlog.indexOf(tarTag) === -1 && backlog.push(tarTag)
+        backlog.sort()
+        const index = backlog.indexOf(tag)
+        const length = index === -1 ? 0 : backlog.length
+        backlog.splice(index, length)
+        backlog.push(tarTag)
       }
 
       fs.existsSync(bak) && fs.removeSync(bak)
