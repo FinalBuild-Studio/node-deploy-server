@@ -57,12 +57,24 @@ app.post('/', async (req, res) => {
     const newTag = Object.keys(available).sort().pop()
     if (newTag) {
       const commit = (available[tag] || available[newTag])
+      const tarTag = commit.name
       const tarBall = commit.zipball_url
       const sha = commit.commit.sha.substr(0, 7)
       const project = `${owner}-${repo}-${sha}/`
       const bak = `${dist}_${sha}_bak`
       const file = path.join(dist, path.basename(tarBall))
-      const log = path.join(__dirname, '.node-deploy-server-log.json')
+      const log = path.join(dist, '.node-deploy-server-log.json')
+      const backlog = []
+
+      if (fs.existsSync(log)) {
+        backlog = fs.readJsonSync(log, {throws: false}) || []
+      }
+
+      if (backlog.indexOf(tarTag) !== -1) {
+        res.sendStatus(200)
+        return false
+      }
+
       fs.existsSync(bak) && fs.removeSync(bak)
       fs.existsSync(dist) && fs.renameSync(dist, bak)
 
@@ -82,6 +94,10 @@ app.post('/', async (req, res) => {
         if (command) {
           exec(command, {cwd: dist});
         }
+
+        backlog.push(tarTag)
+        fs.outputJsonSync(log, backlog)
+        res.sendStatus(200)
       } catch (e) {
         fs.existsSync(dist) && fs.removeSync(dist)
         fs.renameSync(bak, dist)
