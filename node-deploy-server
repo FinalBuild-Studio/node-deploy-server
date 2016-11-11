@@ -22,6 +22,11 @@ const github = new GitHubApi({
   timeout: 5000
 })
 const signature = req => {
+
+}
+
+app.use(require('body-parser').json())
+app.use((req, res, next) => {
   const json = req.body
   const payload = JSON.stringify(json).replace(/[\u007F-\uFFFF]/g, chr => {
     return '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).substr(-4)
@@ -30,15 +35,14 @@ const signature = req => {
   const hex = hmac.digest('hex')
   const sha1 = `sha1=${hex}`
 
-  return sha1 === req.headers['x-hub-signature']
-}
-
-app.use(require('body-parser').json())
-app.post('/', async (req, res) => {
-  if (!signature(req)) {
+  if (sha1 === req.headers['x-hub-signature']) {
+    next()
+  } else {
     return res.sendStatus(403)
   }
+})
 
+app.post('/', async (req, res) => {
   const tag = req.body.tag
   const command = req.body.command
   const owner = req.body.owner
