@@ -78,7 +78,6 @@ app.post('/', async (req, res) => {
       fs.existsSync(dist) && fs.renameSync(dist, bak)
 
       try {
-        fs.ensureDir(dist)
         await download(tarBall, dist)
         const zipFile = new zip(file)
         const zipEntries = zipFile.getEntries();
