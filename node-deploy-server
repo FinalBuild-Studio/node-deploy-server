@@ -12,7 +12,6 @@ const hostname = process.env.HOSTNAME || '127.0.0.1'
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET || ''
 const github = new GitHubApi({
-  debug: true,
   protocol: 'https',
   host: 'api.github.com',
   headers: {
