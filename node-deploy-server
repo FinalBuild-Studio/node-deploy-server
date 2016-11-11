@@ -95,7 +95,7 @@ app.post('/', async (req, res) => {
         res.sendStatus(200)
       } catch (e) {
         fs.existsSync(dist) && fs.removeSync(dist)
-        fs.renameSync(bak, dist)
+        fs.existsSync(bak) && fs.renameSync(bak, dist)
         res.sendStatus(500)
       } finally {
         fs.existsSync(bak) && fs.removeSync(bak)
