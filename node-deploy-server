@@ -68,10 +68,12 @@ app.post('/', async (req, res) => {
         return res.sendStatus(200)
       } else {
         backlog.sort()
-        const index = backlog.indexOf(tag)
-        const length = index === -1 ? 0 : backlog.length
-        backlog.splice(index, length)
-        backlog.push(tarTag)
+        const notFound = backlog.indexOf(tarTag) === -1
+        notFound && backlog.push(tarTag)
+        backlog.sort()
+        const index = backlog.indexOf(tarTag)
+        const length = notFound && backlog.length === 1 ? 0 : backlog.length
+        backlog.splice(index + 1, length)
       }
 
       fs.existsSync(bak) && fs.removeSync(bak)
