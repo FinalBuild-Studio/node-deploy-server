@@ -7,7 +7,7 @@ const crypto = require('crypto')
 const download = require('download')
 const zip = require('adm-zip')
 const fs = require('fs-extra')
-const spawn = require('child_process').spawn
+const exec = require('child_process').exec
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET || ''
@@ -56,28 +56,36 @@ app.post('/', async (req, res) => {
 
     const newTag = Object.keys(available).sort().pop()
     if (newTag) {
-      fs.ensureDir(dist)
       const commit = (available[tag] || available[newTag])
       const tarBall = commit.zipball_url
       const sha = commit.commit.sha.substr(0, 7)
       const project = `${owner}-${repo}-${sha}/`
+      const bak = `${dist}_${sha}_bak`
       const file = path.join(dist, path.basename(tarBall))
-      await download(tarBall, dist)
-      const zipFile = new zip(file)
-      const zipEntries = zipFile.getEntries();
-      zipEntries.forEach(function(zipEntry) {
-        const entry = zipEntry.rawEntryName.toString()
-        if (entry !== project && !zipEntry.isDirectory) {
-          const real = path.join(dist, entry.replace(new RegExp(`^${project}`), ''))
-          fs.outputFile(real, zipEntry.getData().toString())
-        }
-      });
+      fs.existsSync(bak) && fs.removeSync(bak)
+      fs.existsSync(dist) && fs.renameSync(dist, bak)
 
-      fs.unlinkSync(file)
-      if (command) {
-        process.chdir(dist)
-        const exec = command.replace(/\s+/g, ' ').split(' ')
-        spawn(exec.shift(), exec)
+      try {
+        fs.ensureDir(dist)
+        await download(tarBall, dist)
+        const zipFile = new zip(file)
+        const zipEntries = zipFile.getEntries();
+        zipEntries.forEach(function(zipEntry) {
+          const entry = zipEntry.rawEntryName.toString()
+          if (entry !== project && !zipEntry.isDirectory) {
+            const real = path.join(dist, entry.replace(new RegExp(`^${project}`), ''))
+            fs.outputFile(real, zipEntry.getData().toString())
+          }
+        });
+
+        fs.removeSync(file)
+        if (command) {
+          exec(command, {cwd: dist});
+        }
+      } catch (e) {
+        fs.renameSync(bak, dist)
+      } finally {
+        fs.existsSync(bak) && fs.removeSync(bak)
       }
     }
   }
