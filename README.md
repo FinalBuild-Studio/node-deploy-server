@@ -16,3 +16,4 @@ SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 * owner
 * repo
 * tag
+* command
