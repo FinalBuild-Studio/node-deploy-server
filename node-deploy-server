@@ -70,7 +70,7 @@ app.post('/', async (req, res) => {
         res.sendStatus(200)
         return false
       } else {
-        backlog.push(tarTag)
+        backlog.indexOf(tarTag) !== -1 && backlog.push(tarTag)
       }
 
       fs.existsSync(bak) && fs.removeSync(bak)
