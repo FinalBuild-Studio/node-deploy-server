@@ -64,11 +64,7 @@ app.post('/', async (req, res) => {
       const bak = `${dist}_${sha}_bak`
       const file = path.join(dist, path.basename(tarBall))
       const log = path.join(dist, '.node-deploy-server-log.json')
-      const backlog = []
-
-      if (fs.existsSync(log)) {
-        backlog = fs.readJsonSync(log, {throws: false}) || []
-      }
+      const backlog = fs.existsSync(log) ? fs.readJsonSync(log, {throws: false}) : []
 
       if (backlog.indexOf(tarTag) !== -1) {
         res.sendStatus(200)
