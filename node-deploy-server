@@ -66,9 +66,11 @@ app.post('/', async (req, res) => {
       const log = path.join(dist, '.node-deploy-server-log.json')
       const backlog = fs.existsSync(log) ? fs.readJsonSync(log, {throws: false}) : []
 
-      if (backlog.indexOf(tarTag) !== -1) {
+      if (backlog.indexOf(tarTag) !== -1 && !tag) {
         res.sendStatus(200)
         return false
+      } else {
+        backlog.push(tarTag)
       }
 
       fs.existsSync(bak) && fs.removeSync(bak)
@@ -91,7 +93,6 @@ app.post('/', async (req, res) => {
           exec(command, {cwd: dist});
         }
 
-        backlog.push(tarTag)
         fs.outputJsonSync(log, backlog)
         res.sendStatus(200)
       } catch (e) {
