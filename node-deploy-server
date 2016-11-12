@@ -96,7 +96,7 @@ app.post('/', async (req, res) => {
           if (entry !== project && !zipEntry.isDirectory) {
             const save = entry.split('/')
             save.shift()
-            const real = path.join(dist, save.join('/'), ''))
+            const real = path.join(dist, save.join('/'), '')
             fs.outputFile(real, zipEntry.getData().toString())
           }
         });
