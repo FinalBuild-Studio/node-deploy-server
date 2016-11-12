@@ -9,6 +9,7 @@ const download = require('download')
 const zip = require('adm-zip')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
+const debug = require('debug')('app')
 const hostname = process.env.HOSTNAME || '127.0.0.1'
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET || ''
@@ -22,9 +23,6 @@ const github = new GitHubApi({
   followRedirects: false,
   timeout: 5000
 })
-const signature = req => {
-
-}
 
 app.use(require('body-parser').json())
 app.use((req, res, next) => {
@@ -35,6 +33,9 @@ app.use((req, res, next) => {
   const hmac = crypto.createHmac('sha1', secret).update(payload)
   const hex = hmac.digest('hex')
   const sha1 = `sha1=${hex}`
+
+  debug(`incoming request: ${req.headers['x-hub-signature']}`)
+  debug('compare with ${sha1}')
 
   if (sha1 === req.headers['x-hub-signature']) {
     next()
@@ -59,6 +60,7 @@ app.post('/', async (req, res) => {
 
     const newTag = Object.keys(available).sort().pop()
     if (newTag) {
+      debug('tag founded!')
       const commit = (available[tag] || available[newTag])
       const tarTag = commit.name
       const tarBall = commit.zipball_url
@@ -85,6 +87,7 @@ app.post('/', async (req, res) => {
       fs.existsSync(dist) && fs.renameSync(dist, bak)
 
       try {
+        debug('start downloading zipball')
         await download(tarBall, dist)
         const zipFile = new zip(file)
         const zipEntries = zipFile.getEntries();
@@ -97,16 +100,20 @@ app.post('/', async (req, res) => {
         });
 
         if (command) {
+          debug(command)
           exec(command, {cwd: dist});
         }
 
+        debug('success!')
         fs.outputJsonSync(log, backlog)
         res.sendStatus(200)
       } catch (e) {
+        debug('invalid request')
         fs.existsSync(dist) && fs.removeSync(dist)
         fs.existsSync(bak) && fs.renameSync(bak, dist)
         res.sendStatus(500)
       } finally {
+        debug('request finished!')
         fs.existsSync(bak) && fs.removeSync(bak)
         fs.existsSync(file) && fs.removeSync(file)
       }
