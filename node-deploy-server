@@ -23,6 +23,7 @@ const github = new GitHubApi({
   followRedirects: false,
   timeout: 5000
 })
+const savedLogName = '.node-deploy-server-log.json'
 
 app.use(require('body-parser').json())
 app.use((req, res, next) => {
@@ -58,20 +59,28 @@ app.post('/', async (req, res) => {
       githubTag.name && (available[githubTag.name] = githubTag)
     }
 
-    const newTag = Object.keys(available).sort().pop()
+    const tags = Object.keys(available).sort()
+    const log = path.join(dist, savedLogName)
+    const backlog = fs.existsSync(log) ? fs.readJsonSync(log, {throws: false}) : []
+    const newTag = tags.pop()
+    const previousTag = backlog[backlog.length - 2]
     if (newTag) {
       debug('tag founded!')
-      const commit = (available[tag] || available[newTag])
+      const commit = tag === false ? available[previousTag] : (available[tag] || available[newTag]);
+
+      if (undefined === commit) {
+        fs.existsSync(dist) && fs.removeSync(dist)
+        return res.sendStatus(200)
+      }
+
       const tarTag = commit.name
       const tarBall = commit.zipball_url
       const sha = commit.commit.sha.substr(0, 7)
       const project = `${owner}-${repo}-${sha}/`
       const bak = `${dist}_${sha}_bak`
       const file = path.join(dist, path.basename(tarBall))
-      const log = path.join(dist, '.node-deploy-server-log.json')
-      const backlog = fs.existsSync(log) ? fs.readJsonSync(log, {throws: false}) : []
 
-      if (backlog.indexOf(tarTag) !== -1 && !tag) {
+      if (backlog.indexOf(tarTag) !== -1 && tag === "") {
         return res.sendStatus(200)
       } else {
         backlog.sort()
@@ -122,5 +131,6 @@ app.post('/', async (req, res) => {
     }
   }
 })
+
 
 app.listen(port, hostname)
