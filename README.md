@@ -1,6 +1,9 @@
 # node-deploy-server
 Lightweight cross platform self-hosted deployment server solution. Make deployment easier! 🚀
 
+### Requirement
+Node.js >= 7.0.0
+
 ### Installation
 ```sh
 npm install
