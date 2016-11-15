@@ -31,6 +31,8 @@ Modify `.env.exmple` to `.env` and changing to property setting.
   "owner": "CapsLock-Studio",
   "repo": "node-deploy-server",
   "tag": "XX.XX.XX",
-  "command": "Command you want to execute after success"
+  "command": [
+    "Command you want to execute after success"
+  ]
 }
 ```
