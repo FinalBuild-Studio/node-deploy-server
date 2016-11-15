@@ -11,7 +11,7 @@ const zip = require('adm-zip')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
 const debug = require('debug')('app')
-const hostname = process.env.HOSTNAME || '127.0.0.1'
+const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET || ''
 const github = new GitHubApi({
@@ -134,4 +134,4 @@ app.post('/', async (req, res) => {
 })
 
 
-app.listen(port, hostname)
+app.listen(port, host)

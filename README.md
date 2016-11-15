@@ -14,12 +14,15 @@ npm install
 SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 ```
 
-###Windows Users
+### Windows Users
 ```sh
 set SECRET={DEFINE_YOUR_SECRET_STRING_HERE}
 
 node ./node-deploy-server --harmony-async-await
 ```
+
+### For those who do not want to set ENV in shell
+Modify .env.exmple to .env and changing to property setting.
 
 ### Acceptable incoming json schema
 ```json
