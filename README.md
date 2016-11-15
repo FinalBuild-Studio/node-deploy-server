@@ -14,6 +14,13 @@ npm install
 SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 ```
 
+###Windows Users
+```sh
+set SECRET={DEFINE_YOUR_SECRET_STRING_HERE}
+
+node ./node-deploy-server --harmony-async-await
+```
+
 ### Acceptable incoming json schema
 ```json
 {
