@@ -2,7 +2,7 @@
 Lightweight cross platform self-hosted deployment server solution. Make deployment easier! 🚀
 
 ### Requirement
-Node.js >= 7.0.0
+Node.js >= **7.0.0**
 
 ### Installation
 ```sh
@@ -22,7 +22,7 @@ node ./node-deploy-server --harmony-async-await
 ```
 
 ### For those who do not want to set ENV in shell
-Modify .env.exmple to .env and changing to property setting.
+Modify `.env.exmple` to `.env` and changing to property setting.
 
 ### Acceptable incoming json schema
 ```json
