@@ -7,7 +7,7 @@ const path = require('path')
 const GitHubApi = require('github')
 const crypto = require('crypto')
 const download = require('download')
-const zip = require('adm-zip')
+const Zip = require('adm-zip')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
 const debug = require('debug')('app')
@@ -25,6 +25,24 @@ const github = new GitHubApi({
   timeout: 5000
 })
 const savedLogName = '.node-deploy-server-log.json'
+const move = (source, target) => {
+  fs.existsSync(target) && fs.removeSync(target)
+  fs.existsSync(source) && fs.renameSync(source, target)
+}
+const unlink = path => {
+  fs.existsSync(path) && fs.removeSync(path)
+}
+const isRegexTag = (assign, against) => {
+  try {
+    if (assign && assign.match(/[\^\*]/) && !against.match(new RegExp(assign))) {
+      return false
+    }
+  } catch (e) {
+    return false
+  }
+
+  return true
+}
 
 app.use(require('body-parser').json())
 app.use((req, res, next) => {
@@ -52,12 +70,13 @@ app.post('/', async (req, res) => {
   const owner = req.body.owner
   const repo = req.body.repo
   const dist = req.body.dist
+  const commands = Array.isArray(command) ? command : [command]
 
   if (owner && repo && dist) {
     const available = {}
     const githubTags = await github.repos.getTags({owner: owner, repo: repo})
     for (const githubTag of githubTags) {
-      githubTag.name && (available[githubTag.name] = githubTag)
+      githubTag.name && isRegexTag(tag, githubTag.name) && (available[githubTag.name] = githubTag)
     }
 
     const tags = Object.keys(available).sort()
@@ -70,50 +89,44 @@ app.post('/', async (req, res) => {
       const commit = tag === false ? available[previousTag] : (available[tag] || available[newTag]);
 
       if (undefined === commit) {
-        fs.existsSync(dist) && fs.removeSync(dist)
+        unlink(dist)
         return res.sendStatus(200)
       }
 
-      const tarTag = commit.name
-      const tarBall = commit.zipball_url
+      const targetTag = commit.name
+      const zipBall = commit.zipball_url
       const sha = commit.commit.sha.substr(0, 7)
-      const project = `${owner}-${repo}-${sha}/`
       const bak = `${dist}_${sha}_bak`
-      const file = path.join(dist, path.basename(tarBall))
+      const file = path.join(dist, path.basename(zipBall))
 
-      if (backlog.indexOf(tarTag) !== -1 && tag === "") {
+      if (backlog.indexOf(targetTag) !== -1 && tag === "") {
         return res.sendStatus(200)
       } else {
+        const notFound = backlog.indexOf(targetTag) === -1
+        notFound && backlog.push(targetTag)
         backlog.sort()
-        const notFound = backlog.indexOf(tarTag) === -1
-        notFound && backlog.push(tarTag)
-        backlog.sort()
-        const index = backlog.indexOf(tarTag)
+        const index = backlog.indexOf(targetTag)
         const length = notFound && backlog.length === 1 ? 0 : backlog.length
         backlog.splice(index + 1, length)
       }
 
-      fs.existsSync(bak) && fs.removeSync(bak)
-      fs.existsSync(dist) && fs.renameSync(dist, bak)
+      move(dist, bak)
 
       try {
         debug('start downloading zipball')
-        await download(tarBall, dist)
-        const zipFile = new zip(file)
-        const zipEntries = zipFile.getEntries();
-        zipEntries.forEach(function(zipEntry) {
-          const entry = zipEntry.rawEntryName.toString()
-          if (entry !== project && !zipEntry.isDirectory) {
-            const save = entry.split('/')
-            save.shift()
+        await download(zipBall, dist)
+        const entries = (new Zip(file)).getEntries();
+        entries.forEach(function(zipEntry) {
+          if (!zipEntry.isDirectory) {
+            const save = zipEntry.rawEntryName.toString().split('/').slice(1)
             const real = path.join(dist, save.join('/'))
             fs.outputFile(real, zipEntry.getData().toString())
           }
         });
 
-        if (command) {
-          debug(command)
-          exec(command, {cwd: dist});
+        for (const cmd of commands) {
+          debug(cmd)
+          exec(cmd, {cwd: dist});
         }
 
         debug('success!')
@@ -121,15 +134,18 @@ app.post('/', async (req, res) => {
         res.sendStatus(200)
       } catch (e) {
         debug('invalid request')
-        fs.existsSync(dist) && fs.removeSync(dist)
-        fs.existsSync(bak) && fs.renameSync(bak, dist)
+        move(bak, dist)
         res.sendStatus(500)
       } finally {
         debug('request finished!')
-        fs.existsSync(bak) && fs.removeSync(bak)
-        fs.existsSync(file) && fs.removeSync(file)
+        unlink(bak)
+        unlink(file)
       }
+    } else {
+      res.sendStatus(200)
     }
+  } else {
+    res.sendStatus(404)
   }
 })
 
