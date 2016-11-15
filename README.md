@@ -1,4 +1,4 @@
-# node-deploy-server
+# node-deploy-server ![node-requirement](https://img.shields.io/badge/Nodejs-7.x.x-green.svg)
 Lightweight cross platform self-hosted deployment server solution. Make deployment easier! 🚀
 
 ### Requirement
