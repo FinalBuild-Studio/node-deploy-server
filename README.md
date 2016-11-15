@@ -1,9 +1,9 @@
 # node-deploy-server
-A simple nodejs service to handle your project deployment via http.
+Lightweight cross platform self-hosted deployment server solution. Make deployment easier! 🚀
 
 ### Installation
 ```sh
-npm i
+npm install
 ```
 
 ### How to use
