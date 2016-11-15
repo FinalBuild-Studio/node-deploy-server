@@ -11,7 +11,7 @@ npm install
 SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 ```
 
-### Acceptable json schema
+### Acceptable incoming json schema
 ```json
 {
   "dist": "/path/you/want/to/store",
