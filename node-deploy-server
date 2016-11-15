@@ -1,6 +1,7 @@
 #!/bin/sh
 ":" //# http://sambal.org/2014/02/passing-options-node-shebang-line/; exec /usr/bin/env node --harmony-async-await "$0" "$@"
 
+require('dotenv').config({silent: true})
 const app = require('express')()
 const path = require('path')
 const GitHubApi = require('github')
