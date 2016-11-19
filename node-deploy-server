@@ -66,12 +66,13 @@ app.use((req, res, next) => {
 
 app.post('/', async (req, res) => {
   const tag = req.body.tag
-  const command = req.body.command
+  const command = req.body.command || []
   const owner = req.body.owner
   const repo = req.body.repo
   const dist = req.body.dist
   const ignore = req.body.ignore || []
   const commands = Array.isArray(command) ? command : [command]
+  const ignores = Array.isArray(ignore) ? ignore : [ignore]
 
   if (owner && repo && dist) {
     const available = {}
@@ -125,10 +126,12 @@ app.post('/', async (req, res) => {
           }
         });
 
-        for (const origin of ignore) {
-          const _bak = path.join(bak, origin)
-          const _dist = path.join(dist, origin)
-          move(_bak, _dist)
+        for (const origin of ignores) {
+          if (origin) {
+            const _bak = path.join(bak, origin)
+            const _dist = path.join(dist, origin)
+            move(_bak, _dist)
+          }
         }
 
         for (const cmd of commands) {
