@@ -33,6 +33,9 @@ Modify `.env.exmple` to `.env` and changing to property setting.
   "tag": "XX.XX.XX",
   "command": [
     "Command you want to execute after success"
+  ],
+  "ignore": [
+    "/folder/you/do/not/want/to/copy"
   ]
 }
 ```

@@ -70,7 +70,7 @@ app.post('/', async (req, res) => {
   const owner = req.body.owner
   const repo = req.body.repo
   const dist = req.body.dist
-  const retrive = req.body.retrive || []
+  const ignore = req.body.ignore || []
   const commands = Array.isArray(command) ? command : [command]
 
   if (owner && repo && dist) {
@@ -125,7 +125,7 @@ app.post('/', async (req, res) => {
           }
         });
 
-        for (const origin of retrive) {
+        for (const origin of ignore) {
           const _bak = path.join(bak, origin)
           const _dist = path.join(dist, origin)
           move(_bak, _dist)
