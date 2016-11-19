@@ -18,7 +18,7 @@ SECRET={DEFINE_YOUR_SECRET_STRING_HERE} ./node-deploy-server
 ```sh
 set SECRET={DEFINE_YOUR_SECRET_STRING_HERE}
 
-node ./node-deploy-server --harmony-async-await
+node --harmony-async-await ./node-deploy-server
 ```
 
 ### For those who do not want to set ENV in shell
