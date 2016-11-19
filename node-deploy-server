@@ -135,8 +135,10 @@ app.post('/', async (req, res) => {
         }
 
         for (const cmd of commands) {
-          debug(cmd)
-          exec(cmd, {cwd: dist});
+          if (cmd) {
+            debug(cmd)
+            exec(cmd, {cwd: dist})
+          }
         }
 
         debug('success!')
