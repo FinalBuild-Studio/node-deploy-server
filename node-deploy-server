@@ -11,6 +11,7 @@ const Zip = require('adm-zip')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
 const debug = require('debug')('app')
+const glob = require('glob')
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET || ''
@@ -126,10 +127,12 @@ app.post('/', async (req, res) => {
           }
         });
 
-        for (const origin of ignores) {
-          if (origin) {
-            const _bak = path.join(bak, origin)
-            const _dist = path.join(dist, origin)
+        for (const ignore of ignores) {
+          const _bakIgnore = path.join(bak, ignore)
+          const _bakGlob = glob.sync(_bakIgnore)
+          for (_glob of _bakGlob) {
+            const _bak = path.join(bak, _glob)
+            const _dist = path.join(dist, _glob)
             move(_bak, _dist)
           }
         }
