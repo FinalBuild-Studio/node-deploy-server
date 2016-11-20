@@ -127,8 +127,8 @@ app.post('/', async (req, res) => {
           }
         });
 
-        for (const ignore of ignores) {
-          const _bakIgnore = path.join(bak, ignore)
+        for (const ignored of ignores) {
+          const _bakIgnore = path.join(bak, ignored)
           const _bakGlob = glob.sync(_bakIgnore)
           for (_glob of _bakGlob) {
             const _bak = path.join(bak, _glob)
